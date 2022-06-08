@@ -1,8 +1,13 @@
 import axios from "axios";
-import {  useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { postTask } from "../redux/apiRequest";
 
-export default function ModalPost({refreshPages}) {
+export default function ModalPostConponent({
+  refreshPages,
+  accessToken,
+  axiosJwt,
+}) {
   const [inputTask, setInputTask] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
@@ -10,24 +15,29 @@ export default function ModalPost({refreshPages}) {
   const handleClose = () => {
     setOpenModal(false);
   };
+  useEffect(()=>{
+    setInputTask("")
+    setDescription("")
+    setStatus("")
+  },[openModal])
+
   const handleSubmit = () => {
     // console.log(inputTask, description, status);
     setOpenModal(false);
-    ;(async function(){
-        await axios.post('http://localhost:5000/tasks',{
-            name:inputTask,
-            isDone:status==='true',
-            description:description
-        })
-        refreshPages(prev=>++prev)
-    })()
+    const data = {
+      name: inputTask,
+      isDone: status === "true",
+      description: description,
+    };
+    (async function () {
+      
+      await postTask(data, accessToken, axiosJwt);
+      refreshPages((prev) => ++prev);
+    })();
   };
   return (
     <>
-      <Button
-        variant="primary"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button variant="primary" onClick={() => setOpenModal(true)}>
         Post Task
       </Button>
       <Modal show={openModal} onHide={handleClose}>

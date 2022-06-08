@@ -1,16 +1,24 @@
 import axios from "axios";
 import { Button, Modal } from "react-bootstrap";
+import { deleteTask } from "../redux/apiRequest";
 
-export default function ModalDeleteComponent({ value, keyModal, closeModal,refreshPages }) {
+export default function ModalDeleteComponent({
+  value,
+  keyModal,
+  closeModal,
+  refreshPages,
+  accessToken,
+  axiosJwt,
+}) {
   const handleClose = () => {
     closeModal((prev) => (prev.status = false));
   };
   const handleSubmit = () => {
     closeModal((prev) => (prev.status = false));
-    ;(async function(){
-        await axios.delete(`http://localhost:5000/tasks/${value.id}`)
-        refreshPages(prev=>prev+1)
-    })()
+    (async function () {
+      await deleteTask(value.id,accessToken,axiosJwt);
+      refreshPages((prev) => prev + 1);
+    })();
   };
   return (
     <>
@@ -19,9 +27,7 @@ export default function ModalDeleteComponent({ value, keyModal, closeModal,refre
           <Modal.Header closeButton>
             <Modal.Title>{`delete task ${value.id}`}</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
-  
-          </Modal.Body>
+          <Modal.Body></Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
               Cancel

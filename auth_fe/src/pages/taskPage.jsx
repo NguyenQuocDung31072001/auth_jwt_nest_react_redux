@@ -1,14 +1,15 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import { Table } from "react-bootstrap";
-import ModalComponent from "../components/ModalUpdate";
+import ModalUpdateComponent from "../components/ModalUpdate";
 import ModalDeleteComponent from "../components/ModalDelete";
-import ModalPost from "../components/ModalPost";
+import ModalPostComponent from "../components/ModalPost";
 import { useEffect, useState } from "react";
 import { getTask } from "../redux/apiRequest";
 import { useDispatch, useSelector } from "react-redux";
 import { createAxios } from "../instances/createInstance";
 import { login } from "../redux/authSlices";
+import { useNavigate } from "react-router-dom";
 
 function TaskPage() {
   const [data, setData] = useState([]);
@@ -18,22 +19,30 @@ function TaskPage() {
     keyModal: null,
   });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.login);
 
   const [refreshPages, setRefreshPages] = useState(1);
-  let axiosJWT = createAxios(user, dispatch, login);
+  let axiosJwt = createAxios(user, dispatch, login);
 
   useEffect(() => {
+    if (!user.accessToken) {
+      navigate("/login");
+    }
     (async function () {
-      let dataRes = await getTask(user.accessToken, axiosJWT);
+      let dataRes = await getTask(user.accessToken, axiosJwt);
       setData(dataRes);
     })();
-    console.log("refresh page task")
-  }, [refreshPages,user]);
+    console.log("refresh page task");
+  }, [refreshPages, user]);
 
   return (
     <div>
-      <ModalPost refreshPages={setRefreshPages} />
+      <ModalPostComponent
+        refreshPages={setRefreshPages}
+        accessToken={user.accessToken}
+        axiosJwt={axiosJwt}
+      />
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -74,11 +83,13 @@ function TaskPage() {
                       Delete
                     </Button>
                     {openModal.status && (
-                      <ModalComponent
+                      <ModalUpdateComponent
                         value={value}
                         keyModal={openModal.keyModal}
                         closeModal={setOpenModal}
                         refreshPages={setRefreshPages}
+                        accessToken={user.accessToken}
+                        axiosJwt={axiosJwt}
                       />
                     )}
                     {openModalDelete.status && (
@@ -87,6 +98,8 @@ function TaskPage() {
                         keyModal={openModalDelete.keyModal}
                         closeModal={setOpenModalDelete}
                         refreshPages={setRefreshPages}
+                        accessToken={user.accessToken}
+                        axiosJwt={axiosJwt}
                       />
                     )}
                   </td>

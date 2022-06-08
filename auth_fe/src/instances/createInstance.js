@@ -16,7 +16,7 @@ const refreshToken = async ({ username, password }) => {
 
 export const createAxios = (user, dispatch, login) => {
   //user.username, user.password, user.accessToken
-
+  console.log("axios interceptor")
   const newInstance = axios.create();
   newInstance.interceptors.request.use(
     async (config) => {

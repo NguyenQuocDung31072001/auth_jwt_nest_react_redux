@@ -1,8 +1,20 @@
 import axios from "axios";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { createAxios } from "../instances/createInstance";
+import { updateTask } from "../redux/apiRequest";
+import { login } from "../redux/authSlices";
 
-export default function ModalComponent({ value, keyModal, closeModal ,refreshPages}) {
+export default function ModalUpdateComponent({
+  value,
+  keyModal,
+  closeModal,
+  refreshPages,
+  accessToken,
+  axiosJwt
+}) {
+  // console.log(axiosJwt)
   const [inputTask, setInputTask] = useState(value.name);
   const [description, setDescription] = useState(value.description);
   const [status, setStatus] = useState(value.isDone);
@@ -11,16 +23,17 @@ export default function ModalComponent({ value, keyModal, closeModal ,refreshPag
   };
   const handleSubmit = () => {
     // console.log(value.id,inputTask, description, status);
-    closeModal((prev)=>prev.status=false)
-    ;(async function(){
-        await axios.put('http://localhost:5000/tasks',{
-            id:value.id,
-            name:inputTask,
-            description:description,
-            isDone:status==='true'
-        })
-        refreshPages(prev=>prev+1)
-    })()
+    closeModal((prev) => (prev.status = false));
+    const data = {
+      id: value.id,
+      name: inputTask,
+      description: description,
+      status: status === "true",
+    };
+    (async function () {
+      await updateTask(data, accessToken, axiosJwt);
+      refreshPages((prev) => prev + 1);
+    })();
   };
   return (
     <>
